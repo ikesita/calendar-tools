@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>厄年チェッカー｜数え年で本厄・前厄・後厄を計算</title>
+<meta name="description" content="生まれ年と性別から数え年を計算し、今年が本厄・前厄・後厄かどうかと、次の本厄がいつ来るかを表示する無料ツールです。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>厄年チェッカー</h1>
+    <p>厄年は「数え年」で数えます。生まれ年と性別から、対象の年が本厄・前厄・後厄かどうかを調べます。</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="f"><label>生まれ年（西暦）</label><input id="year" type="number" min="1900" max="2100" step="1" value="1985"></div>
+      <div class="f"><label>生年月日（任意：入力すると生まれ年に反映）</label><input id="birth" type="date"></div>
+      <div class="f"><label>性別</label>
+        <select id="sex">
+          <option value="m" selected>男性</option>
+          <option value="f">女性</option>
+        </select>
+      </div>
+      <div class="f"><label>対象の年（西暦）</label><input id="target" type="number" min="1900" max="2200" step="1" value="2026"></div>
+    </div>
+    <p class="note" style="margin-top:10px">本厄の数え年は、男性が25歳・42歳・61歳、女性が19歳・33歳・37歳・61歳とされています。本厄の前年が前厄、翌年が後厄です。</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><td>数え年（対象年）</td><td class="v" id="kazo">-</td></tr>
+      <tr><td>判定</td><td class="v" id="judge">-</td></tr>
+      <tr><td>次の本厄</td><td class="v" id="next">-</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">厄年の年齢は数え年（生まれた年を1歳とし、元日に1歳加える数え方）で数えるのが慣例です。節分を境とする考え方もあり、神社や資料によって扱いが異なる場合があります。あくまで目安としてご利用ください。</p>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const YAKU = { m: [25, 42, 61], f: [19, 33, 37, 61] };
+
+function calc(){
+  let birthYear = parseInt(document.getElementById("year").value, 10);
+  const bv = document.getElementById("birth").value;
+  if(bv){
+    birthYear = Number(bv.split("-")[0]);
+    document.getElementById("year").value = birthYear;
+  }
+  const sex = document.getElementById("sex").value;
+  const target = parseInt(document.getElementById("target").value, 10);
+  if(!birthYear || !target){ return; }
+  const kazo = target - birthYear + 1;
+  const list = YAKU[sex];
+  document.getElementById("kazo").textContent = kazo + " 歳";
+  const judgeEl = document.getElementById("judge");
+  if(list.includes(kazo)) judgeEl.textContent = "本厄";
+  else if(list.includes(kazo + 1)) judgeEl.textContent = "前厄（翌年が本厄）";
+  else if(list.includes(kazo - 1)) judgeEl.textContent = "後厄（前年が本厄）";
+  else judgeEl.textContent = "厄年に該当しません";
+  const nextEl = document.getElementById("next");
+  const upcoming = list.find(a => a > kazo);
+  if(upcoming){
+    nextEl.textContent = (target + (upcoming - kazo)) + " 年（数え年 " + upcoming + " 歳）";
+  } else if(list.includes(kazo)){
+    nextEl.textContent = "今年が最後の本厄です";
+  } else {
+    nextEl.textContent = "本厄はすべて過ぎました";
+  }
+}
+["year","birth","sex","target"].forEach(id => document.getElementById(id).addEventListener("input", calc));
+calc();
+</script>
+</body>
+</html>
