@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和暦・西暦 変換｜明治・大正・昭和・平成・令和対応</title>
+<meta name="description" content="日付を入力すると西暦と和暦（明治・大正・昭和・平成・令和）を表示します。和暦から西暦への逆変換にも対応した無料ツールです。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#7c3aed; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .card h2{font-size:16px;margin:0 0 12px}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+  .big{font-size:26px;font-weight:900;text-align:center;margin:10px 0 2px}
+  .sub2{text-align:center;color:var(--sub);font-size:14px}
+  .err{color:#b91c1c;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  td,th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;color:var(--sub)}
+  td.v{color:var(--ink);font-weight:700;text-align:right}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>和暦・西暦 変換</h1>
+    <p>日付から和暦を調べる変換と、和暦から西暦を調べる逆変換の両方に対応しています。</p>
+  </header>
+
+  <div class="card">
+    <h2>日付 → 和暦</h2>
+    <div class="f"><label>日付</label><input id="date" type="date" value="2026-11-10"></div>
+    <div class="big" id="warekiOut">-</div>
+    <div class="sub2" id="seirekiOut">-</div>
+  </div>
+
+  <div class="card">
+    <h2>和暦 → 西暦</h2>
+    <div class="row">
+      <div class="f"><label>元号</label>
+        <select id="era">
+          <option value="4">令和</option>
+          <option value="3">平成</option>
+          <option value="2">昭和</option>
+          <option value="1">大正</option>
+          <option value="0">明治</option>
+        </select>
+      </div>
+      <div class="f"><label>年（元年は1）</label><input id="eraYear" type="number" min="1" max="99" value="8" style="width:90px"></div>
+      <div class="f"><label>月</label><input id="eraMonth" type="number" min="1" max="12" value="11" style="width:80px"></div>
+      <div class="f"><label>日</label><input id="eraDay" type="number" min="1" max="31" value="10" style="width:80px"></div>
+    </div>
+    <div class="big" id="revOut" style="font-size:22px">-</div>
+    <div class="sub2" id="revMsg">-</div>
+  </div>
+
+  <div class="card">
+    <h2>元号の期間</h2>
+    <table>
+      <tr><td>明治</td><td class="v">1868年9月8日 〜 1912年7月29日</td></tr>
+      <tr><td>大正</td><td class="v">1912年7月30日 〜 1926年12月24日</td></tr>
+      <tr><td>昭和</td><td class="v">1926年12月25日 〜 1989年1月7日</td></tr>
+      <tr><td>平成</td><td class="v">1989年1月8日 〜 2019年4月30日</td></tr>
+      <tr><td>令和</td><td class="v">2019年5月1日 〜</td></tr>
+    </table>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const ERAS = [
+  { name:"明治", startYear:1868, start:[1868,9,8],  end:[1912,7,29] },
+  { name:"大正", startYear:1912, start:[1912,7,30], end:[1926,12,24] },
+  { name:"昭和", startYear:1926, start:[1926,12,25], end:[1989,1,7] },
+  { name:"平成", startYear:1989, start:[1989,1,8],  end:[2019,4,30] },
+  { name:"令和", startYear:2019, start:[2019,5,1],  end:null }
+];
+const key = (y,m,d) => y*10000 + m*100 + d;
+const fmtEraYear = n => n === 1 ? "元年" : n + "年";
+
+function toWareki(){
+  const v = document.getElementById("date").value;
+  const wo = document.getElementById("warekiOut"), so = document.getElementById("seirekiOut");
+  if(!v){ wo.textContent = "-"; so.textContent = "-"; return; }
+  const [y, m, d] = v.split("-").map(Number);
+  const k = key(y, m, d);
+  so.textContent = "西暦 " + y + "年" + m + "月" + d + "日";
+  if(k < key(1868,9,8)){ wo.textContent = "明治より前の日付です"; return; }
+  for(const e of ERAS){
+    if(k >= key(...e.start) && (!e.end || k <= key(...e.end))){
+      wo.textContent = e.name + fmtEraYear(y - e.startYear + 1) + m + "月" + d + "日";
+      return;
+    }
+  }
+  wo.textContent = "-";
+}
+
+function fromWareki(){
+  const e = ERAS[Number(document.getElementById("era").value)];
+  const ey = parseInt(document.getElementById("eraYear").value, 10);
+  const mm = parseInt(document.getElementById("eraMonth").value, 10);
+  const dd = parseInt(document.getElementById("eraDay").value, 10);
+  const out = document.getElementById("revOut"), msg = document.getElementById("revMsg");
+  out.classList.remove("err");
+  if(!ey || ey < 1 || !mm || mm < 1 || mm > 12 || !dd || dd < 1 || dd > 31){
+    out.textContent = "入力をご確認ください"; msg.textContent = ""; return;
+  }
+  const y = e.startYear + ey - 1;
+  // 存在しない日付（2月30日など）を検出
+  const dt = new Date(y, mm - 1, dd);
+  if(dt.getFullYear() !== y || dt.getMonth() !== mm - 1 || dt.getDate() !== dd){
+    out.textContent = "その日付は存在しません"; msg.textContent = ""; return;
+  }
+  const k = key(y, mm, dd);
+  if(k < key(...e.start) || (e.end && k > key(...e.end))){
+    out.textContent = e.name + fmtEraYear(ey) + "にその日付はありません";
+    out.classList.add("err");
+    msg.textContent = e.name + "の期間は " + e.start.join("/") + " 〜 " + (e.end ? e.end.join("/") : "現在") + " です";
+    return;
+  }
+  out.textContent = "西暦 " + y + "年" + mm + "月" + dd + "日";
+  msg.textContent = e.name + fmtEraYear(ey) + mm + "月" + dd + "日";
+}
+
+document.getElementById("date").addEventListener("input", toWareki);
+["era","eraYear","eraMonth","eraDay"].forEach(id => document.getElementById(id).addEventListener("input", fromWareki));
+toWareki(); fromWareki();
+</script>
+</body>
+</html>

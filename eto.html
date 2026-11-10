@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>干支・九星 チェック｜生まれ年から干支と九星気学を簡易計算</title>
+<meta name="description" content="生まれ年から干支（十二支・十干・六十干支）と九星気学の本命星を簡易計算する無料ツールです。立春（2月4日）調整にも対応しています。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>干支・九星 チェック</h1>
+    <p>生まれ年から、干支（十二支・十干・六十干支）と九星気学の本命星を簡易計算します。</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="f"><label>生まれ年（西暦）</label><input id="year" type="number" min="1900" max="2100" step="1" value="1990"></div>
+      <div class="f"><label>生年月日（任意：九星の立春調整に使用）</label><input id="birth" type="date"></div>
+    </div>
+    <p class="note" style="margin-top:10px">九星気学では立春（目安として2月4日）を年の境とします。生年月日を入力すると、2月4日より前に生まれた場合は前年として本命星を計算します。</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><td>干支（十二支）</td><td class="v" id="eto">-</td></tr>
+      <tr><td>十干</td><td class="v" id="jikkan">-</td></tr>
+      <tr><td>六十干支</td><td class="v" id="rokuju">-</td></tr>
+      <tr><td>九星（本命星）</td><td class="v" id="star">-</td></tr>
+    </table>
+    <p class="note" id="adjNote" style="margin-top:10px"></p>
+    <p class="note">本ツールは一般的な計算方法による簡易チェックです。流派や資料により、立春の扱い・節入りの日時などで結果が異なる場合があります。運勢の判断ではなく、暦の参考としてご利用ください。</p>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const ETO = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const ETO_YOMI = ["ね","うし","とら","う","たつ","み","うま","ひつじ","さる","とり","いぬ","い"];
+const JIKKAN = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const STARS = {1:"一白水星",2:"二黒土星",3:"三碧木星",4:"四緑木星",5:"五黄土星",6:"六白金星",7:"七赤金星",8:"八白土星",9:"九紫火星"};
+const mod = (a, n) => ((a % n) + n) % n;
+
+function starOf(year){
+  let s = String(year).split("").reduce((a, c) => a + Number(c), 0);
+  while(s >= 10) s = String(s).split("").reduce((a, c) => a + Number(c), 0);
+  let n = 11 - s;
+  if(n > 9) n -= 9;
+  return STARS[n];
+}
+
+function calc(){
+  let year = parseInt(document.getElementById("year").value, 10);
+  const bv = document.getElementById("birth").value;
+  const note = document.getElementById("adjNote");
+  note.textContent = "";
+  if(bv){
+    const [by, bm, bd] = bv.split("-").map(Number);
+    year = by;
+    document.getElementById("year").value = by;
+    var starYear = (bm < 2 || (bm === 2 && bd < 4)) ? by - 1 : by;
+    if(starYear !== by) note.textContent = "立春（2月4日）より前の生まれのため、九星は " + starYear + " 年として計算しています。";
+  } else {
+    var starYear = year;
+  }
+  if(!year || year < 1){ return; }
+  const eIdx = mod(year - 4, 12), jIdx = mod(year - 4, 10);
+  document.getElementById("eto").textContent = ETO[eIdx] + "年（" + ETO_YOMI[eIdx] + "）";
+  document.getElementById("jikkan").textContent = JIKKAN[jIdx];
+  document.getElementById("rokuju").textContent = JIKKAN[jIdx] + ETO[eIdx];
+  document.getElementById("star").textContent = starOf(starYear);
+}
+document.getElementById("year").addEventListener("input", calc);
+document.getElementById("birth").addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>

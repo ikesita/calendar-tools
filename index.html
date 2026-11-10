@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>暦・日付ツール集｜和暦変換・干支・月齢・誕生日計算</title>
+<meta name="description" content="和暦・西暦の変換、干支と九星、月齢・月の満ち欠け、生まれた曜日と次の誕生日までを計算できる無料ツール集です。入力はブラウザ内でのみ処理されます。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#7c3aed; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:27px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .tool{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;text-decoration:none;color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .tool:hover{border-color:var(--acc)}
+  .tool .t{font-weight:800;font-size:16.5px;margin-bottom:4px}
+  .tool .d{color:var(--sub);font-size:13.5px}
+  footer{color:var(--sub);font-size:12.5px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>暦・日付ツール集</h1>
+    <p>和暦の変換から月の満ち欠けまで、日付にまつわる計算をまとめた無料ツール集です。すべての計算はブラウザ内で完結します。</p>
+  </header>
+  <div class="grid">
+    <a class="tool" href="wareki.html"><div class="t">和暦・西暦 変換</div><div class="d">日付から和暦（明治〜令和）を表示。和暦から西暦への逆変換もできます</div></a>
+    <a class="tool" href="eto.html"><div class="t">干支・九星 チェック</div><div class="d">生まれ年から干支（十干・六十干支）と九星を簡易計算します</div></a>
+    <a class="tool" href="moon.html"><div class="t">月齢・月の満ち欠け</div><div class="d">指定した日の月齢と、月の形の名前・輝面率の目安を表示します</div></a>
+    <a class="tool" href="birthday.html"><div class="t">誕生日ツール</div><div class="d">生まれた曜日、現在の満年齢、次の誕生日まで何日かを表示します</div></a>
+  </div>
+  <footer>入力内容はブラウザ内でのみ処理され、サーバーへ送信されることはありません。</footer>
+</div>
+</body>
+</html>

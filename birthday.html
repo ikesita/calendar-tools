@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生まれた曜日・あと何日で誕生日｜年齢と生きた日数も表示</title>
+<meta name="description" content="誕生日を入力すると、生まれた曜日、現在の満年齢、次の誕生日まであと何日か、生まれてからの総日数を表示する無料ツールです。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#db2777; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  .big{font-size:26px;font-weight:900;text-align:center;margin:10px 0 2px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>生まれた曜日・あと何日で誕生日</h1>
+    <p>誕生日を入力すると、生まれた曜日や次の誕生日までの日数を表示します。</p>
+  </header>
+
+  <div class="card">
+    <div class="f"><label>誕生日</label><input id="birth" type="date" value="2000-01-01"></div>
+    <div class="big" id="headline">-</div>
+    <table>
+      <tr><td>生まれた曜日</td><td class="v" id="weekday">-</td></tr>
+      <tr><td>現在の満年齢</td><td class="v" id="ageNow">-</td></tr>
+      <tr><td>次の誕生日まで</td><td class="v" id="until">-</td></tr>
+      <tr><td>次の誕生日の日付</td><td class="v" id="nextDate">-</td></tr>
+      <tr><td>生まれてからの日数</td><td class="v" id="daysLived">-</td></tr>
+    </table>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const WD = ["日","月","火","水","木","金","土"];
+const DAYMS = 86400000;
+// 日付のみをUTCミリ秒に変換（時刻・タイムゾーンの影響を受けないため）
+const dayMs = (y, m, d) => Date.UTC(y, m - 1, d);
+
+function calc(){
+  const v = document.getElementById("birth").value;
+  if(!v) return;
+  const [by, bm, bd] = v.split("-").map(Number);
+  const now = new Date();
+  const ty = now.getFullYear(), tm = now.getMonth() + 1, td = now.getDate();
+  const birthMs = dayMs(by, bm, bd), todayMs = dayMs(ty, tm, td);
+  if(birthMs > todayMs){
+    document.getElementById("headline").textContent = "未来の日付が入力されています";
+    return;
+  }
+  // 生まれた曜日
+  const wd = new Date(birthMs).getUTCDay();
+  document.getElementById("weekday").textContent = WD[wd] + "曜日";
+  // 満年齢
+  let age = ty - by;
+  if(tm < bm || (tm === bm && td < bd)) age--;
+  document.getElementById("ageNow").textContent = age + " 歳";
+  // 次の誕生日（うるう年以外は2月29日生まれ→3月1日として扱う）
+  let nextMs = dayMs(ty, bm, bd);
+  if(nextMs < todayMs) nextMs = dayMs(ty + 1, bm, bd);
+  const nd = new Date(nextMs);
+  const untilDays = Math.round((nextMs - todayMs) / DAYMS);
+  document.getElementById("until").textContent = untilDays === 0 ? "今日が誕生日です" : "あと " + untilDays.toLocaleString("ja-JP") + " 日";
+  document.getElementById("nextDate").textContent = nd.getUTCFullYear() + "年" + (nd.getUTCMonth() + 1) + "月" + nd.getUTCDate() + "日（" + WD[nd.getUTCDay()] + "）";
+  // 生まれてからの日数
+  const lived = Math.round((todayMs - birthMs) / DAYMS);
+  document.getElementById("daysLived").textContent = lived.toLocaleString("ja-JP") + " 日";
+  document.getElementById("headline").textContent =
+    by + "年" + bm + "月" + bd + "日（" + WD[wd] + "）生まれ";
+}
+document.getElementById("birth").addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>

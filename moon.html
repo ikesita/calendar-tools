@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>月齢・月の満ち欠け｜指定した日の月の形を計算</title>
+<meta name="description" content="日付を入力すると、その日の月齢と月の形（新月・上弦・満月・下弦など）、輝面率の目安を表示する無料ツールです。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#334155; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  .moonvis{text-align:center;font-size:64px;line-height:1.2;margin:6px 0}
+  .big{font-size:26px;font-weight:900;text-align:center;margin:4px 0}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>月齢・月の満ち欠け</h1>
+    <p>指定した日の月齢と、月の形の目安を表示します。</p>
+  </header>
+
+  <div class="card">
+    <div class="f"><label>日付</label><input id="date" type="date"></div>
+    <div class="moonvis" id="emoji">🌕</div>
+    <div class="big" id="phase">-</div>
+    <table>
+      <tr><td>月齢</td><td class="v" id="age">-</td></tr>
+      <tr><td>輝面率（光っている割合の目安）</td><td class="v" id="illum">-</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">月齢は、基準の新月（2000年1月6日 18:14 UTC）からの経過日数をもとにした近似計算です。実際の月の形・月齢とは多少ずれる場合がありますので、目安としてご利用ください。</p>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const SYNODIC = 29.530588853;
+const REF = Date.UTC(2000, 0, 6, 18, 14); // 基準の新月
+function phaseOf(age){
+  if(age < 1.8)  return ["新月付近", "🌑"];
+  if(age < 6.4)  return ["上弦に向かう月（三日月〜）", "🌒"];
+  if(age < 8.4)  return ["上弦付近", "🌓"];
+  if(age < 13.8) return ["満ちていく月", "🌔"];
+  if(age < 16.6) return ["満月付近", "🌕"];
+  if(age < 21.1) return ["欠けていく月", "🌖"];
+  if(age < 23.9) return ["下弦付近", "🌗"];
+  return ["新月に向かう月", "🌘"];
+}
+function calc(){
+  const v = document.getElementById("date").value;
+  if(!v) return;
+  const [y, m, d] = v.split("-").map(Number);
+  const t = Date.UTC(y, m - 1, d, 12, 0); // その日の正午（UTC）で代表させる
+  let age = ((t - REF) / 86400000) % SYNODIC;
+  if(age < 0) age += SYNODIC;
+  const illum = (1 - Math.cos(2 * Math.PI * age / SYNODIC)) / 2 * 100;
+  const [name, emoji] = phaseOf(age);
+  document.getElementById("phase").textContent = name;
+  document.getElementById("emoji").textContent = emoji;
+  document.getElementById("age").textContent = age.toFixed(1) + " 日";
+  document.getElementById("illum").textContent = "約 " + Math.round(illum) + " ％";
+}
+const today = new Date();
+const pad = n => String(n).padStart(2, "0");
+document.getElementById("date").value = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
+document.getElementById("date").addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
