@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>入学・卒業年度計算｜生年月日から小学校〜大学の入学・卒業年を表示</title>
+<meta name="description" content="生年月日を入力すると、小学校・中学校・高校・大学（4年制）の入学と卒業の年月を一覧表示する無料ツールです。早生まれの学年判定にも対応しています。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  th{padding:6px 0;color:var(--sub);font-weight:600;text-align:left;font-size:13px}
+  th.v{text-align:right}
+  .big{font-size:22px;font-weight:800;color:var(--ink)}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>入学・卒業年度計算</h1>
+    <p>生年月日から、小学校・中学校・高校・大学（4年制）の入学と卒業の年月を表示します。浪人・留年・留学などがないストレート進学の場合の目安です。</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="f"><label>生年月日</label><input id="birth" type="date" value="2019-05-01"></div>
+    </div>
+    <p class="big" id="headline" style="margin:14px 0 0">-</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>学校</th><th class="v">入学</th><th class="v">卒業</th></tr>
+      <tr><td>小学校</td><td class="v" id="rElemIn">-</td><td class="v" id="rElemOut">-</td></tr>
+      <tr><td>中学校</td><td class="v" id="rJhsIn">-</td><td class="v" id="rJhsOut">-</td></tr>
+      <tr><td>高校</td><td class="v" id="rHsIn">-</td><td class="v" id="rHsOut">-</td></tr>
+      <tr><td>大学（4年制）</td><td class="v" id="rUniIn">-</td><td class="v" id="rUniOut">-</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">小学校の入学は「満6歳の誕生日以後に最初に訪れる4月」です。学年は4月2日生まれから翌年の4月1日生まれまでが同じ学年で、1月1日〜4月1日生まれ（早生まれ）は、前の年の4月2日以降に生まれた子と同じ学年になります。</p>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+function parseDate(s){
+  const p = s.split("-").map(Number);
+  return { y: p[0], m: p[1], d: p[2] };
+}
+// 小学校入学の4月（年）: 4/2〜翌4/1生まれが同学年
+function elemEntryYear(b){
+  const effYear = (b.m < 4 || (b.m === 4 && b.d <= 1)) ? b.y - 1 : b.y;
+  return effYear + 7;
+}
+const ym = (y, m) => y + "年" + m + "月";
+
+function calc(){
+  const v = document.getElementById("birth").value;
+  if(!v) return;
+  const b = parseDate(v);
+  const e = elemEntryYear(b);
+  document.getElementById("rElemIn").textContent = ym(e, 4);
+  document.getElementById("rElemOut").textContent = ym(e + 6, 3);
+  document.getElementById("rJhsIn").textContent = ym(e + 6, 4);
+  document.getElementById("rJhsOut").textContent = ym(e + 9, 3);
+  document.getElementById("rHsIn").textContent = ym(e + 9, 4);
+  document.getElementById("rHsOut").textContent = ym(e + 12, 3);
+  document.getElementById("rUniIn").textContent = ym(e + 12, 4);
+  document.getElementById("rUniOut").textContent = ym(e + 16, 3);
+  const early = (b.m < 4 || (b.m === 4 && b.d <= 1));
+  document.getElementById("headline").textContent =
+    b.y + "年" + b.m + "月" + b.d + "日生まれは、小学校に " + e + "年4月 入学です" + (early ? "（早生まれ）" : "");
+}
+document.getElementById("birth").addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
