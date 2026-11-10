@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>次の祝日まであと何日｜2026年の国民の祝日から次の休日を表示</title>
+<meta name="description" content="今日（または指定した日）から数えて、次の国民の祝日がいつか、あと何日かを表示する無料ツールです。2026年の祝日一覧から判定します。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  .big{font-size:22px;font-weight:800;color:var(--ink)}
+  .list td{padding:5px 0;border-bottom:1px solid var(--line)}
+  .list td.v{text-align:right}
+  .past{opacity:.45}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>次の祝日まであと何日</h1>
+    <p>選んだ日から数えて、次に来る国民の祝日（2026年）といつまであと何日かを表示します。初期表示は今日です。</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="f"><label>基準日</label><input id="date" type="date"></div>
+    </div>
+    <p class="big" id="headline" style="margin:14px 0 0">-</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><td>次の祝日</td><td class="v" id="hName">-</td></tr>
+      <tr><td>日付</td><td class="v" id="hDate">-</td></tr>
+      <tr><td>曜日</td><td class="v" id="hDow">-</td></tr>
+      <tr><td>あと何日</td><td class="v" id="hDays">-</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">このツールは2026年の国民の祝日のみで判定しています。祝日が日曜と重なった場合の「振替休日」や、祝日に挟まれた平日が休みになる「国民の休日」は扱っていないため、実際の休日はカレンダーより少し多くなる場合があります。2027年以降の祝日も対象外です。</p>
+  </div>
+
+  <div class="card">
+    <p class="note" style="margin:0 0 8px">2026年の国民の祝日一覧（このツールで判定に使っている日付）</p>
+    <table class="list" id="hList"></table>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const HOLIDAYS_2026 = [
+  ["2026-01-01", "元日"],
+  ["2026-01-12", "成人の日"],
+  ["2026-02-11", "建国記念の日"],
+  ["2026-02-23", "天皇誕生日"],
+  ["2026-03-20", "春分の日"],
+  ["2026-04-29", "昭和の日"],
+  ["2026-05-03", "憲法記念日"],
+  ["2026-05-04", "みどりの日"],
+  ["2026-05-05", "こどもの日"],
+  ["2026-07-20", "海の日"],
+  ["2026-08-11", "山の日"],
+  ["2026-09-21", "敬老の日"],
+  ["2026-09-23", "秋分の日"],
+  ["2026-10-12", "スポーツの日"],
+  ["2026-11-03", "文化の日"],
+  ["2026-11-23", "勤労感謝の日"]
+];
+const DOW = ["日", "月", "火", "水", "木", "金", "土"];
+
+function toUTC(s){
+  const p = s.split("-").map(Number);
+  return Date.UTC(p[0], p[1] - 1, p[2]);
+}
+function fmt(s){
+  const p = s.split("-").map(Number);
+  return p[0] + "年" + p[1] + "月" + p[2] + "日";
+}
+function dowOf(s){
+  const p = s.split("-").map(Number);
+  return DOW[new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay()];
+}
+
+function calc(){
+  const v = document.getElementById("date").value;
+  if(!v) return;
+  const base = toUTC(v);
+  let next = null;
+  for(const h of HOLIDAYS_2026){
+    if(toUTC(h[0]) >= base){ next = h; break; }
+  }
+  const head = document.getElementById("headline");
+  if(!next){
+    head.textContent = "2026年の祝日はすべて過ぎました";
+    document.getElementById("hName").textContent = "-";
+    document.getElementById("hDate").textContent = "-";
+    document.getElementById("hDow").textContent = "-";
+    document.getElementById("hDays").textContent = "-";
+  } else {
+    const days = Math.round((toUTC(next[0]) - base) / 86400000);
+    document.getElementById("hName").textContent = next[1];
+    document.getElementById("hDate").textContent = fmt(next[0]);
+    document.getElementById("hDow").textContent = dowOf(next[0]) + "曜日";
+    document.getElementById("hDays").textContent = days + " 日";
+    head.textContent = days === 0
+      ? "今日は「" + next[1] + "」です"
+      : "次の祝日「" + next[1] + "」まで あと " + days + " 日";
+  }
+  // 一覧（過ぎた祝日は薄く表示）
+  const rows = HOLIDAYS_2026.map(h => {
+    const past = toUTC(h[0]) < base;
+    return '<tr' + (past ? ' class="past"' : '') + '><td>' + h[1] + '</td><td class="v">' + fmt(h[0]) + '（' + dowOf(h[0]) + '）</td></tr>';
+  }).join("");
+  document.getElementById("hList").innerHTML = rows;
+}
+const dateEl = document.getElementById("date");
+const now = new Date();
+const pad = n => String(n).padStart(2, "0");
+dateEl.value = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+dateEl.addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
