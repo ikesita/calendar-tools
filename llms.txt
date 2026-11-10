@@ -1,0 +1,20 @@
+# 暦・日付ツール集
+
+> 和暦・西暦の変換、干支と九星、月齢・月の満ち欠け、生まれた曜日と次の誕生日までを計算できる無料ツール集です。入力はブラウザ内でのみ処理されます。
+
+## Pages
+
+- [暦・日付ツール集 (top page)](https://ikesita.github.io/calendar-tools/)
+- [和暦・西暦 変換](https://ikesita.github.io/calendar-tools/wareki.html)
+- [干支・九星 チェック](https://ikesita.github.io/calendar-tools/eto.html)
+- [月齢・月の満ち欠け](https://ikesita.github.io/calendar-tools/moon.html)
+- [生まれた曜日・あと何日で誕生日](https://ikesita.github.io/calendar-tools/birthday.html)
+- [厄年チェッカー](https://ikesita.github.io/calendar-tools/yakudoshi.html)
+- [今年の残り日数と進捗](https://ikesita.github.io/calendar-tools/yearprogress.html)
+- [年齢早見表](https://ikesita.github.io/calendar-tools/agetable.html)
+- [次の祝日まであと何日](https://ikesita.github.io/calendar-tools/nextholiday.html)
+- [週番号計算](https://ikesita.github.io/calendar-tools/weeknum.html)
+- [記念日・経過日数計算](https://ikesita.github.io/calendar-tools/anniversary.html)
+- [入学・卒業年度計算](https://ikesita.github.io/calendar-tools/nyugaku.html)
+- [2027年の祝日一覧](https://ikesita.github.io/calendar-tools/holidays2027.html)
+- [年度・四半期計算](https://ikesita.github.io/calendar-tools/nendo.html)
