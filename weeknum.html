@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>週番号計算｜その日が第何週か（ISO 8601）と曜日を表示</title>
+<meta name="description" content="日付を入力すると、その日がISO 8601の週番号で第何週かと、曜日を表示する無料ツールです。週の始まりは月曜日、年の最初の木曜日を含む週が第1週です。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  .big{font-size:22px;font-weight:800;color:var(--ink)}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>週番号計算</h1>
+    <p>選んだ日が、ISO 8601のルールでその年の第何週かと、曜日を表示します。初期表示は今日です。</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="f"><label>日付</label><input id="date" type="date"></div>
+    </div>
+    <p class="big" id="headline" style="margin:14px 0 0">-</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><td>日付</td><td class="v" id="rDate">-</td></tr>
+      <tr><td>曜日</td><td class="v" id="rDow">-</td></tr>
+      <tr><td>週番号（ISO 8601）</td><td class="v" id="rWeek">-</td></tr>
+      <tr><td>週番号の属する年（ISO週年）</td><td class="v" id="rIsoYear">-</td></tr>
+      <tr><td>その週の月曜日〜日曜日</td><td class="v" id="rRange">-</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">ISO 8601の週番号は「週は月曜日に始まり、その年の最初の木曜日を含む週を第1週とする」ルールです。そのため、1月1日ごろや12月末は、暦の年と週番号の属する年（ISO週年）がずれる場合があります。Excelの WEEKNUM 関数（日曜始まりなど）とは数え方が異なることがあります。</p>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const DOW = ["日", "月", "火", "水", "木", "金", "土"];
+const pad = n => String(n).padStart(2, "0");
+
+function parseDate(s){
+  const p = s.split("-").map(Number);
+  return new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+}
+function fmtUTC(d){
+  return d.getUTCFullYear() + "年" + (d.getUTCMonth() + 1) + "月" + d.getUTCDate() + "日";
+}
+// ISO 8601: 週は月曜始まり、その週の木曜日が属する年が ISO週年、第1週は最初の木曜日を含む週
+function isoWeek(date){
+  const d = new Date(date.getTime());
+  const dayNum = (d.getUTCDay() + 6) % 7; // 月曜=0
+  d.setUTCDate(d.getUTCDate() - dayNum + 3); // その週の木曜日
+  const isoYear = d.getUTCFullYear();
+  const first = new Date(Date.UTC(isoYear, 0, 4));
+  const fDay = (first.getUTCDay() + 6) % 7;
+  first.setUTCDate(first.getUTCDate() - fDay + 3); // 第1週の木曜日
+  const week = 1 + Math.round((d - first) / (7 * 86400000));
+  return { week: week, isoYear: isoYear };
+}
+
+function calc(){
+  const v = document.getElementById("date").value;
+  if(!v) return;
+  const d = parseDate(v);
+  const r = isoWeek(d);
+  const dow = DOW[d.getUTCDay()];
+  const dayNum = (d.getUTCDay() + 6) % 7;
+  const mon = new Date(d.getTime()); mon.setUTCDate(mon.getUTCDate() - dayNum);
+  const sun = new Date(mon.getTime()); sun.setUTCDate(sun.getUTCDate() + 6);
+  document.getElementById("rDate").textContent = fmtUTC(d);
+  document.getElementById("rDow").textContent = dow + "曜日";
+  document.getElementById("rWeek").textContent = "第 " + r.week + " 週";
+  document.getElementById("rIsoYear").textContent = r.isoYear + " 年";
+  document.getElementById("rRange").textContent = fmtUTC(mon) + " 〜 " + fmtUTC(sun);
+  document.getElementById("headline").textContent = fmtUTC(d) + "（" + dow + "）は 第 " + r.week + " 週 です";
+}
+const dateEl = document.getElementById("date");
+const now = new Date();
+dateEl.value = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+dateEl.addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>

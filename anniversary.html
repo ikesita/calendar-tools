@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記念日・経過日数計算｜付き合って何日・結婚して何日と次の節目</title>
+<meta name="description" content="付き合い始めた日や結婚した日などから、基準日までの経過日数と、次の100日単位・1年単位の節目の日付と残り日数を表示する無料ツールです。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  .big{font-size:22px;font-weight:800;color:var(--ink)}
+  .note{font-size:13px;color:var(--sub)}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>記念日・経過日数計算</h1>
+    <p>付き合い始めた日・結婚した日・サービス開始日などから、基準日まで何日経ったかと、次の節目（100日単位・1年単位）までの残り日数を表示します。基準日の初期表示は今日です。</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="f"><label>開始日（記念日）</label><input id="start" type="date" value="2026-01-01"></div>
+      <div class="f"><label>基準日</label><input id="base" type="date"></div>
+    </div>
+    <p class="big" id="headline" style="margin:14px 0 0">-</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><td>経過日数（開始日を0日として計算）</td><td class="v" id="rElapsed">-</td></tr>
+      <tr><td>次の100日単位の節目</td><td class="v" id="rNext100">-</td></tr>
+      <tr><td>その日まであと</td><td class="v" id="rNext100Left">-</td></tr>
+      <tr><td>次の1年単位の節目</td><td class="v" id="rNextYear">-</td></tr>
+      <tr><td>その日まであと</td><td class="v" id="rNextYearLeft">-</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">経過日数は「基準日 − 開始日」の日数です（開始日当日は0日）。「付き合って100日目」のように開始日を1日目として数える場合は、表示より1日早い日付が節目になります。うるう年2月29日を開始日にした場合、翌年以降の1年単位の節目は2月28日として計算します。</p>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const pad = n => String(n).padStart(2, "0");
+const DAY = 86400000;
+
+function parseDate(s){
+  const p = s.split("-").map(Number);
+  return Date.UTC(p[0], p[1] - 1, p[2]);
+}
+function fmt(ms){
+  const d = new Date(ms);
+  return d.getUTCFullYear() + "年" + (d.getUTCMonth() + 1) + "月" + d.getUTCDate() + "日";
+}
+// start に n 年を加えた日付（2/29 は 2/28 に丸める）
+function addYears(startMs, n){
+  const d = new Date(startMs);
+  const y = d.getUTCFullYear() + n, m = d.getUTCMonth(), day = d.getUTCDate();
+  const lastDay = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return Date.UTC(y, m, Math.min(day, lastDay));
+}
+
+function calc(){
+  const sv = document.getElementById("start").value;
+  const bv = document.getElementById("base").value;
+  if(!sv || !bv) return;
+  const start = parseDate(sv), base = parseDate(bv);
+  const elapsed = Math.round((base - start) / DAY);
+  const head = document.getElementById("headline");
+  if(elapsed < 0){
+    head.textContent = "基準日が開始日より前です（開始まであと " + (-elapsed) + " 日）";
+    ["rElapsed","rNext100","rNext100Left","rNextYear","rNextYearLeft"].forEach(id => document.getElementById(id).textContent = "-");
+    return;
+  }
+  // 次の100日単位の節目（ちょうど当日の場合はそれ自体が節目、あとは 0 日）
+  const next100n = Math.max(100, Math.ceil(elapsed / 100) * 100);
+  const next100 = start + next100n * DAY;
+  // 次の1年単位の節目
+  let yearsPassed = 0;
+  while(addYears(start, yearsPassed + 1) <= base) yearsPassed++;
+  const nextYearMs = addYears(start, yearsPassed + 1);
+  const nextYearLeft = Math.round((nextYearMs - base) / DAY);
+
+  document.getElementById("rElapsed").textContent = elapsed.toLocaleString("ja-JP") + " 日";
+  document.getElementById("rNext100").textContent = next100n.toLocaleString("ja-JP") + "日目にあたる " + fmt(next100);
+  document.getElementById("rNext100Left").textContent = Math.round((next100 - base) / DAY) + " 日";
+  document.getElementById("rNextYear").textContent = (yearsPassed + 1) + "年目にあたる " + fmt(nextYearMs);
+  document.getElementById("rNextYearLeft").textContent = nextYearLeft + " 日";
+  head.textContent = "開始日から " + elapsed.toLocaleString("ja-JP") + " 日 が経過しました";
+}
+const baseEl = document.getElementById("base");
+const now = new Date();
+baseEl.value = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+document.getElementById("start").addEventListener("input", calc);
+baseEl.addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
