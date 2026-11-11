@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2028年4月30日（日）は何の日？｜和暦・六曜・あと何日</title>
+<meta name="description" content="2028年4月30日（日曜日）の暦情報。国民の祝日ではありません。和暦は令和10年、六曜は先負です。今日からあと何日か、そのほかの日付との日数も計算できます。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#b45309; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:25px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input,.f select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  td{padding:6px 0;color:var(--sub)} td.v{text-align:right;color:var(--ink);font-weight:800}
+  tr.sun td, tr.sun td.v{color:#b91c1c}
+  tr.sat td, tr.sat td.v{color:#1d4ed8}
+  .big{font-size:22px;font-weight:800;color:var(--ink)}
+  .hol{color:#b91c1c;font-weight:800}
+  .note{font-size:13px;color:var(--sub)}
+  .nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:640px){.nav{grid-template-columns:1fr}}
+  .nav a{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-decoration:none;color:var(--ink);box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .nav a:hover{border-color:var(--acc)}
+  .nav .k{font-size:12.5px;color:var(--sub)}
+  .nav .t{font-weight:800;font-size:15.5px}
+  .daylist td a{color:var(--ink);font-weight:700;text-decoration:none}
+  .daylist td a:hover{color:var(--acc);text-decoration:underline}
+  footer{color:var(--sub);font-size:12.5px;margin-top:22px}
+</style>
+</head>
+<body>
+<!-- date:2028-04-30 dow:6 holiday: rokuyo:先負 -->
+<div class="wrap">
+  <header>
+    <h1>2028年4月30日（日）</h1>
+    <p>2028年4月30日（日曜日）の暦情報と、今日からあと何日かを確認できるページです。</p>
+  </header>
+
+  <div class="card">
+    <table>
+      <tr class="sun"><td>西暦</td><td class="v">2028年4月30日（日曜日）</td></tr>
+      <tr><td>和暦</td><td class="v">令和10年4月30日</td></tr>
+      <tr><td>祝日</td><td class="v">祝日ではありません</td></tr>
+      <tr><td>六曜</td><td class="v">先負</td></tr>
+      <tr><td>旧暦</td><td class="v">4月6日</td></tr>
+      <tr><td>干支（この年）</td><td class="v">戊申（つちのえさる）</td></tr>
+      <tr><td>干支（この日）</td><td class="v">乙酉（きのととり）</td></tr>
+      <tr><td>2028年の通算</td><td class="v">121日目（残り245日）</td></tr>
+      <tr><td>週番号（ISO）</td><td class="v">第17週</td></tr>
+    </table>
+    <p class="note" style="margin-top:10px">六曜の「先負」は、午前は凶、午後が吉とされます。物事は控えめに、急がないほうがよい日です。</p>
+  </div>
+
+  <div class="card">
+    <p class="big" id="fromToday" style="margin:0 0 12px">-</p>
+    <div class="f">
+      <label>もう一方の日付（この日との日数を計算します）</label>
+      <input id="other" type="date">
+    </div>
+    <p class="note" id="between" style="margin:12px 0 0">-</p>
+    <p class="note" style="margin-top:8px">日数は単純な引き算で計算しています（同じ日は0日）。</p>
+  </div>
+
+  <div class="nav">
+      <a href="d2028-04-29.html"><div class="k">← 前の日</div><div class="t">4月29日（土）</div></a>
+      <a href="2028-04.html"><div class="k">月別カレンダー</div><div class="t">2028年4月のカレンダー</div></a>
+      <a href="d2028-05-01.html"><div class="k">次の日 →</div><div class="t">5月1日（月）</div></a>
+  </div>
+
+  <footer>入力内容はブラウザ内でのみ処理され、送信されません。ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。</footer>
+</div>
+
+<script>
+const TARGET = Date.UTC(2028, 4 - 1, 30);
+const DAY = 86400000;
+const pad = n => String(n).padStart(2, "0");
+function fmtJp(ms){
+  const d = new Date(ms);
+  return d.getUTCFullYear() + "年" + (d.getUTCMonth() + 1) + "月" + d.getUTCDate() + "日";
+}
+function todayUtc(){
+  const n = new Date();
+  return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+}
+function calc(){
+  const today = todayUtc();
+  const diff = Math.round((TARGET - today) / DAY);
+  const head = document.getElementById("fromToday");
+  if(diff > 0) head.textContent = "今日から数えると、あと " + diff.toLocaleString("ja-JP") + " 日 です";
+  else if(diff === 0) head.textContent = "この日は 今日 です";
+  else head.textContent = "今日から数えると、" + (-diff).toLocaleString("ja-JP") + " 日前 でした";
+  const ov = document.getElementById("other").value;
+  const out = document.getElementById("between");
+  if(!ov){ out.textContent = "-"; return; }
+  const p = ov.split("-").map(Number);
+  const other = Date.UTC(p[0], p[1] - 1, p[2]);
+  const b = Math.round((other - TARGET) / DAY);
+  if(b === 0) out.textContent = fmtJp(other) + " は、この日と 同じ日 です（差は 0 日）";
+  else if(b > 0) out.textContent = fmtJp(other) + " は、この日の " + b.toLocaleString("ja-JP") + " 日後 です（間の日数は " + b.toLocaleString("ja-JP") + " 日）";
+  else out.textContent = fmtJp(other) + " は、この日の " + (-b).toLocaleString("ja-JP") + " 日前 です（間の日数は " + (-b).toLocaleString("ja-JP") + " 日）";
+}
+const otherEl = document.getElementById("other");
+const n = new Date();
+otherEl.value = n.getFullYear() + "-" + pad(n.getMonth() + 1) + "-" + pad(n.getDate());
+otherEl.addEventListener("input", calc);
+calc();
+</script>
+</body>
+</html>
