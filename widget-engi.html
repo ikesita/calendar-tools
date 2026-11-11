@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日の縁起日ウィジェット（一粒万倍日・天赦日・六曜・干支）</title>
+<meta name="description" content="今日が一粒万倍日・天赦日かどうかと、六曜・干支を毎日自動で表示する埋め込み用ウィジェットです。">
+<meta name="robots" content="noindex">
+<style>
+  :root{ --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#7c3aed; --gold:#b45309; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;color:var(--ink);line-height:1.5;background:#fff}
+  .w{padding:12px 14px 10px}
+  .date{font-size:13px;color:var(--sub);margin:0}
+  .headline{font-size:19px;font-weight:800;margin:2px 0 8px}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+  .badge{display:none;font-size:13px;font-weight:800;border-radius:999px;padding:3px 10px}
+  .badge.on{display:inline-block}
+  .b-tensha{background:#fef3c7;color:#92400e;border:1px solid #f59e0b}
+  .b-ichiryu{background:#ede9fe;color:#5b21b6;border:1px solid #a78bfa}
+  .b-normal{background:#f1f5f9;color:var(--sub);border:1px solid var(--line);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td{padding:3px 0;color:var(--sub)}
+  td.v{text-align:right;color:var(--ink);font-weight:700}
+  .next{font-size:12.5px;color:var(--sub);margin:8px 0 0}
+  .next b{color:var(--ink)}
+  footer{border-top:1px solid var(--line);margin-top:10px;padding-top:7px;font-size:12px;color:var(--sub)}
+  footer a{color:var(--acc);font-weight:700;text-decoration:none}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="w">
+  <p class="date" id="dateLine">-</p>
+  <p class="headline" id="headline">今日の縁起日</p>
+  <div class="badges">
+    <span class="badge b-tensha" id="badgeTensha">★ 天赦日</span>
+    <span class="badge b-ichiryu" id="badgeIchiryu">一粒万倍日</span>
+    <span class="badge b-normal" id="badgeNormal">今日は通常の日です</span>
+  </div>
+  <table>
+    <tr><td>六曜</td><td class="v" id="rokuyo">-</td></tr>
+    <tr><td>干支</td><td class="v" id="eto">-</td></tr>
+    <tr><td>旧暦</td><td class="v" id="lunar">-</td></tr>
+  </table>
+  <p class="next" id="nextLine"></p>
+  <footer>提供：<a href="https://ikesita.github.io/calendar-tools/engi-index.html" target="_top" rel="noopener">一粒万倍日・天赦日一覧</a>｜<a href="https://ikesita.github.io/calendar-tools/" target="_top" rel="noopener">暦・日付ツール集</a></footer>
+</div>
+
+<script>
+"use strict";
+// ===== 判定ロジック（本サイトの日別ページ生成データと全件照合済み） =====
+const STEMS = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+const ROKUYO_NAMES = ["大安","赤口","先勝","友引","先負","仏滅"]; // (旧暦月+旧暦日)%6
+// 日本の旧暦の月開始日アンカー [年,月,日,旧暦月,閏]（国立天文台 暦要項の朔日が根拠）
+const LUNAR_ANCHORS = [
+  [2026,12,9,11,0],[2027,1,8,12,0],[2027,2,7,1,0],[2027,3,8,2,0],[2027,4,7,3,0],
+  [2027,5,6,4,0],[2027,6,5,5,0],[2027,7,4,6,0],[2027,8,2,7,0],[2027,9,1,8,0],
+  [2027,9,30,9,0],[2027,10,29,10,0],[2027,11,28,11,0],[2027,12,28,12,0],
+  [2028,1,27,1,0],[2028,2,25,2,0],[2028,3,26,3,0],[2028,4,25,4,0],[2028,5,24,5,0],
+  [2028,6,23,5,1],[2028,7,22,6,0],[2028,8,20,7,0],[2028,9,19,8,0],[2028,10,18,9,0],
+  [2028,11,16,10,0],[2028,12,16,11,0],[2029,1,15,12,0]
+];
+const DAY_MS = 86400000;
+function utcMs(y, m, d){ return Date.UTC(y, m - 1, d); }
+// 日の干支（2027-01-01=庚辰・通日インデックス16 が起点）
+function etoOf(y, m, d){
+  const diff = Math.round((utcMs(y, m, d) - utcMs(2027, 1, 1)) / DAY_MS);
+  const idx = ((16 + diff) % 60 + 60) % 60;
+  return { idx, stem: idx % 10, branch: idx % 12, name: STEMS[idx % 10] + BRANCHES[idx % 12] };
+}
+// 旧暦・六曜（アンカー範囲 2026-12-09〜2029-01-14 の外は null）
+function lunarOf(y, m, d){
+  const t = utcMs(y, m, d);
+  let cur = null;
+  for (const a of LUNAR_ANCHORS){
+    const s = utcMs(a[0], a[1], a[2]);
+    if (t >= s) cur = a; else break;
+  }
+  if (!cur) return null;
+  const last = LUNAR_ANCHORS[LUNAR_ANCHORS.length - 1];
+  if (t >= utcMs(last[0], last[1], last[2])) return null;
+  const day = Math.round((t - utcMs(cur[0], cur[1], cur[2])) / DAY_MS) + 1;
+  return { month: cur[3], day, leap: cur[4] === 1, rokuyo: ROKUYO_NAMES[(cur[3] + day) % 6] };
+}
+// 太陽視黄経（Meeus の低精度式）
+function sunLongitude(jd){
+  const T = (jd - 2451545.0) / 36525.0;
+  const L0 = (280.46646 + T * (36000.76983 + 0.0003032 * T)) % 360;
+  const M = 357.52911 + T * (35999.05029 - 0.0001537 * T);
+  const Mr = M * Math.PI / 180;
+  const C = (1.914602 - T * (0.004817 + 0.000014 * T)) * Math.sin(Mr)
+          + (0.019993 - 0.000101 * T) * Math.sin(2 * Mr)
+          + 0.000289 * Math.sin(3 * Mr);
+  const omega = 125.04 - 1934.136 * T;
+  const lam = L0 + C - 0.00569 - 0.00478 * Math.sin(omega * Math.PI / 180);
+  return ((lam % 360) + 360) % 360;
+}
+// 節月（1=立春〜啓蟄 … 12=小寒〜立春）。節入り当日は新しい月に含める
+function setsuMonth(y, m, d){
+  const jd = utcMs(y, m, d) / DAY_MS + 2440587.5 + 0.625; // 翌日00:00 JST 時点で判定
+  const lam = sunLongitude(jd);
+  if (lam >= 285 && lam < 315) return 12;
+  if (lam >= 315 && lam < 345) return 1;
+  if (lam >= 345 || lam < 15)  return 2;
+  if (lam < 45)  return 3;
+  if (lam < 75)  return 4;
+  if (lam < 105) return 5;
+  if (lam < 135) return 6;
+  if (lam < 165) return 7;
+  if (lam < 195) return 8;
+  if (lam < 225) return 9;
+  if (lam < 255) return 10;
+  return 11;
+}
+// 一粒万倍日：節月ごとに決まった2つの十二支（本サイト一覧と全件一致の対応表）
+const ICHIRYU_PAIRS = {
+  1: [1, 6], 2: [2, 9], 3: [0, 3], 4: [3, 4], 5: [5, 6], 6: [6, 9],
+  7: [0, 7], 8: [3, 8], 9: [6, 9], 10: [9, 10], 11: [0, 11], 12: [0, 3]
+};
+function isIchiryu(y, m, d){
+  return ICHIRYU_PAIRS[setsuMonth(y, m, d)].includes(etoOf(y, m, d).branch);
+}
+// 天赦日：春=戊寅(14) 夏=甲午(30) 秋=戊申(44) 冬=甲子(0)
+const TENSHA_BY_SEASON = { spring: 14, summer: 30, autumn: 44, winter: 0 };
+function isTensha(y, m, d){
+  const sm = setsuMonth(y, m, d);
+  const season = sm <= 3 ? "spring" : sm <= 6 ? "summer" : sm <= 9 ? "autumn" : "winter";
+  return etoOf(y, m, d).idx === TENSHA_BY_SEASON[season];
+}
+// ===== 表示 =====
+const DOW = ["日","月","火","水","木","金","土"];
+function pickDate(){
+  const q = new URLSearchParams(location.search).get("date");
+  if (q){
+    const mm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(q);
+    if (mm){
+      const y = +mm[1], mo = +mm[2], d = +mm[3];
+      const dt = new Date(Date.UTC(y, mo - 1, d));
+      if (dt.getUTCFullYear() === y && dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d)
+        return { y, m: mo, d, dow: dt.getUTCDay() };
+    }
+  }
+  const n = new Date();
+  return { y: n.getFullYear(), m: n.getMonth() + 1, d: n.getDate(), dow: n.getDay() };
+}
+function render(){
+  const t = pickDate();
+  const eto = etoOf(t.y, t.m, t.d);
+  const lunar = lunarOf(t.y, t.m, t.d);
+  const ichi = isIchiryu(t.y, t.m, t.d);
+  const ten = isTensha(t.y, t.m, t.d);
+  document.getElementById("dateLine").textContent =
+    t.y + "年" + t.m + "月" + t.d + "日（" + DOW[t.dow] + "）";
+  document.getElementById("headline").textContent =
+    ten && ichi ? "今日は天赦日＆一粒万倍日です" :
+    ten ? "今日は天赦日です" :
+    ichi ? "今日は一粒万倍日です" : "今日の暦";
+  document.getElementById("badgeTensha").classList.toggle("on", ten);
+  document.getElementById("badgeIchiryu").classList.toggle("on", ichi);
+  document.getElementById("badgeNormal").classList.toggle("on", !ten && !ichi);
+  document.getElementById("rokuyo").textContent = lunar ? lunar.rokuyo : "―";
+  document.getElementById("eto").textContent = eto.name;
+  document.getElementById("lunar").textContent =
+    lunar ? ((lunar.leap ? "閏" : "") + lunar.month + "月" + lunar.day + "日") : "―";
+  // 次の一粒万倍日・天赦日（本日が該当する場合は除く）
+  let nextI = null, nextT = null;
+  for (let i = 1; i <= 400 && (!nextI || !nextT); i++){
+    const dt = new Date(utcMs(t.y, t.m, t.d) + i * DAY_MS);
+    const yy = dt.getUTCFullYear(), mm2 = dt.getUTCMonth() + 1, dd = dt.getUTCDate();
+    if (!nextI && isIchiryu(yy, mm2, dd)) nextI = { mm: mm2, dd, in: i };
+    if (!nextT && isTensha(yy, mm2, dd)) nextT = { mm: mm2, dd, in: i };
+  }
+  const parts = [];
+  if (nextI) parts.push("次の一粒万倍日は <b>" + nextI.mm + "月" + nextI.dd + "日</b>（あと" + nextI.in + "日）");
+  if (nextT) parts.push("次の天赦日は <b>" + nextT.mm + "月" + nextT.dd + "日</b>（あと" + nextT.in + "日）");
+  document.getElementById("nextLine").innerHTML = parts.join("／");
+}
+render();
+</script>
+</body>
+</html>

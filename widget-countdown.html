@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カウントダウンウィジェット｜あと何日</title>
+<meta name="description" content="指定したイベントまでの残り日数を毎日自動で表示する、埋め込み用カウントダウンウィジェットです。">
+<meta name="robots" content="noindex">
+<style>
+  :root{ --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#7c3aed; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;color:var(--ink);line-height:1.5;background:#fff}
+  .w{padding:12px 14px 10px;text-align:center}
+  .title{font-size:15px;font-weight:800;margin:0;overflow-wrap:anywhere}
+  .big{font-size:34px;font-weight:800;margin:4px 0 2px}
+  .big .num{color:var(--acc)}
+  .date{font-size:12.5px;color:var(--sub);margin:0}
+  .err{font-size:13.5px;color:#b91c1c;font-weight:700;margin:6px 0}
+  footer{border-top:1px solid var(--line);margin-top:10px;padding-top:7px;font-size:12px;color:var(--sub);text-align:left}
+  footer a{color:var(--acc);font-weight:700;text-decoration:none}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="w">
+  <p class="title" id="evTitle">イベント</p>
+  <p class="big" id="bigLine">-</p>
+  <p class="date" id="dateLine"></p>
+  <p class="err" id="errLine" style="display:none"></p>
+  <footer>提供：<a href="https://ikesita.github.io/calendar-tools/" target="_top" rel="noopener">暦・日付ツール集</a>｜<a href="https://ikesita.github.io/calendar-tools/embed.html" target="_top" rel="noopener">このウィジェットを設置する</a></footer>
+</div>
+
+<script>
+"use strict";
+// URLパラメータ title / date を読み取り、必ず textContent 経由で表示する（HTMLとして解釈させない）
+(function(){
+  const DAY_MS = 86400000;
+  const DOW = ["日","月","火","水","木","金","土"];
+  const params = new URLSearchParams(location.search);
+  const titleEl = document.getElementById("evTitle");
+  const bigEl = document.getElementById("bigLine");
+  const dateEl = document.getElementById("dateLine");
+  const errEl = document.getElementById("errLine");
+
+  // タイトル：文字列としてそのまま表示（最大80文字に切り詰め）
+  let title = params.get("title") || "";
+  title = title.replace(/\s+/g, " ").trim().slice(0, 80);
+  titleEl.textContent = title ? title + "まで" : "イベントまで";
+
+  // 日付：YYYY-MM-DD 形式のみ許可し、実在する日付か検証する
+  const raw = params.get("date") || "";
+  const mm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  let target = null;
+  if (mm){
+    const y = +mm[1], mo = +mm[2], d = +mm[3];
+    const dt = new Date(Date.UTC(y, mo - 1, d));
+    if (dt.getUTCFullYear() === y && dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d){
+      target = { y, mo, d, dow: dt.getUTCDay(), ms: Date.UTC(y, mo - 1, d) };
+    }
+  }
+  if (!target){
+    bigEl.textContent = "―";
+    errEl.style.display = "block";
+    errEl.textContent = "日付が正しく指定されていません（例：?title=共通テスト&date=2027-01-16）";
+    return;
+  }
+  dateEl.textContent = target.y + "年" + target.mo + "月" + target.d + "日（" + DOW[target.dow] + "）";
+
+  const n = new Date();
+  const todayMs = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  const diff = Math.round((target.ms - todayMs) / DAY_MS);
+  if (diff > 0){
+    bigEl.innerHTML = "";
+    const lead = document.createTextNode("あと ");
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = diff.toLocaleString("ja-JP");
+    const tail = document.createTextNode(" 日");
+    bigEl.append(lead, num, tail);
+  } else if (diff === 0){
+    bigEl.textContent = "本日です";
+  } else {
+    bigEl.textContent = (-diff).toLocaleString("ja-JP") + " 日が経過しました";
+  }
+})();
+</script>
+</body>
+</html>

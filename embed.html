@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>埋め込みウィジェット配布｜今日の縁起日・カウントダウン（無料）</title>
+<meta name="description" content="ブログやサイトにコピー＆ペーストで設置できる無料ウィジェットを配布しています。「今日の縁起日（一粒万倍日・天赦日・六曜・干支）」と「イベントカウントダウン」の2種類。クレジットリンクつきでご利用ください。">
+<style>
+  :root{ --bg:#f6f7f9; --card:#fff; --ink:#1c2333; --sub:#5b6478; --line:#dde1ea; --acc:#7c3aed; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 56px}
+  header h1{font-size:27px;margin:8px 0 4px}
+  header p{color:var(--sub);margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .card h2{font-size:19px;margin:2px 0 8px}
+  .card h3{font-size:15.5px;margin:16px 0 6px}
+  .note{font-size:13.5px;color:var(--sub)}
+  .preview{display:flex;justify-content:center;background:#fbfbfd;border:1px dashed var(--line);border-radius:12px;padding:14px 8px;margin:10px 0}
+  textarea{width:100%;min-height:118px;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;background:#fbfbfd;color:var(--ink)}
+  .copybtn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+  .copybtn:hover{opacity:.88}
+  .f label{display:block;font-size:13px;color:var(--sub);margin-bottom:4px}
+  .f input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  ol.steps{margin:6px 0;padding-left:22px}
+  ol.steps li{margin-bottom:4px}
+  footer{color:var(--sub);font-size:12.5px;margin-top:26px}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"暦・日付ツール集 埋め込みウィジェット","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"description":"今日の縁起日（一粒万倍日・天赦日・六曜・干支）とイベントカウントダウンを、ブログやサイトに埋め込める無料ウィジェットです。"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"ウィジェットは無料で使えますか？","acceptedAnswer":{"@type":"Answer","text":"はい。個人・商用を問わず無料でご利用いただけます。条件として、スニペット内のクレジットリンクはそのまま設置してください。"}},
+{"@type":"Question","name":"クレジットリンクを外したり書き換えたりできますか？","acceptedAnswer":{"@type":"Answer","text":"クレジットリンクの削除・改変はご遠慮ください。配布の条件として、リンクつきのスニペットをそのままご利用ください。"}},
+{"@type":"Question","name":"表示される「今日」は誰の日付ですか？","acceptedAnswer":{"@type":"Answer","text":"ページを見ている方のブラウザ（端末の日付・タイムゾーン）をもとに判定します。毎日0時を過ぎると自動でその日の内容に切り替わります。"}},
+{"@type":"Question","name":"スマートフォンでも表示されますか？","acceptedAnswer":{"@type":"Answer","text":"はい。iframe の幅は max-width:100% を指定しているため、画面幅に合わせて縮小表示されます。"}}]}
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>埋め込みウィジェット配布</h1>
+    <p>ブログやWebサイトに、コピー＆ペーストだけで設置できる無料のウィジェットです。「今日の縁起日」と「イベントカウントダウン」の2種類を用意しました。表示内容は毎日自動で更新されます。</p>
+  </header>
+
+  <div class="card">
+    <h2>1. 今日の縁起日ウィジェット</h2>
+    <p class="note" style="margin:0">その日が<strong>一粒万倍日</strong>・<strong>天赦日</strong>かどうかと、<strong>六曜・干支・旧暦</strong>、次の縁起日までの日数を表示します。判定は閲覧者の日付で行われ、毎日自動で切り替わります。開運・暦ブログや、毎朝のチェック用サイドバーなどにおすすめです。</p>
+    <div class="preview">
+      <iframe src="widget-engi.html" width="360" height="248" style="border:1px solid #dde1ea;border-radius:12px;max-width:100%" loading="lazy" title="今日の縁起日ウィジェットのプレビュー"></iframe>
+    </div>
+    <h3>設置用コード（このまま貼り付け）</h3>
+    <textarea id="engiSnippet" readonly><!-- 今日の縁起日ウィジェット（暦・日付ツール集） -->
+<iframe src="https://ikesita.github.io/calendar-tools/widget-engi.html" width="360" height="248" style="border:1px solid #dde1ea;border-radius:12px;max-width:100%" loading="lazy" title="今日の縁起日（一粒万倍日・天赦日・六曜・干支）"></iframe>
+<div style="font-size:12px;color:#5b6478">今日の縁起日は<a href="https://ikesita.github.io/calendar-tools/engi-index.html">一粒万倍日・天赦日一覧｜暦・日付ツール集</a>でチェック</div></textarea>
+    <button class="copybtn" type="button" onclick="copySnippet('engiSnippet', this)">コードをコピー</button>
+  </div>
+
+  <div class="card">
+    <h2>2. イベントカウントダウンウィジェット</h2>
+    <p class="note" style="margin:0">イベント名と日付を指定すると、「あと○日」を毎日自動で表示します。試験・記念日・発売日・旅行の予定などに。下のフォームで内容を指定すると、プレビューと設置用コードが自動で切り替わります。</p>
+    <div class="grid2" style="margin-top:10px">
+      <div class="f">
+        <label for="cdTitle">イベント名</label>
+        <input id="cdTitle" type="text" value="共通テスト" maxlength="80">
+      </div>
+      <div class="f">
+        <label for="cdDate">日付</label>
+        <input id="cdDate" type="date" value="2027-01-16">
+      </div>
+    </div>
+    <div class="preview">
+      <iframe id="cdPreview" src="widget-countdown.html?title=%E5%85%B1%E9%80%9A%E3%83%86%E3%82%B9%E3%83%88&amp;date=2027-01-16" width="360" height="186" style="border:1px solid #dde1ea;border-radius:12px;max-width:100%" loading="lazy" title="カウントダウンウィジェットのプレビュー"></iframe>
+    </div>
+    <h3>設置用コード（このまま貼り付け）</h3>
+    <textarea id="cdSnippet" readonly></textarea>
+    <button class="copybtn" type="button" onclick="copySnippet('cdSnippet', this)">コードをコピー</button>
+  </div>
+
+  <div class="card">
+    <h2>設置方法とご利用条件</h2>
+    <ol class="steps">
+      <li>使いたいウィジェットの「コードをコピー」を押します。</li>
+      <li>ご自身のブログ・サイトの、表示したい場所にそのまま貼り付けます（WordPressなら「カスタムHTML」ブロック、HTMLが編集できるブログなら本文やサイドバーのHTML欄）。</li>
+      <li>公開すれば設置完了です。翌日からは自動でその日の内容に切り替わります。</li>
+    </ol>
+    <p class="note">ご利用条件：個人・商用を問わず無料です。スニペット内のクレジットリンク（「暦・日付ツール集」へのリンク）は、配布の条件として削除・改変せずそのまま設置してください。iframe の設置可否は、ご利用のブログ・サイトサービスの仕様に従ってください。ウィジェットの内容（縁起日の判定など）は予告なく更新される場合があります。</p>
+  </div>
+
+  <div class="card">
+    <h2>よくある質問</h2>
+    <h3>無料で使えますか？</h3>
+    <p class="note" style="margin:0">はい。個人・商用を問わず無料でご利用いただけます。条件として、スニペット内のクレジットリンクはそのまま設置してください。</p>
+    <h3>クレジットリンクを外したり書き換えたりできますか？</h3>
+    <p class="note" style="margin:0">クレジットリンクの削除・改変はご遠慮ください。配布の条件として、リンクつきのスニペットをそのままご利用ください。</p>
+    <h3>表示される「今日」は誰の日付ですか？</h3>
+    <p class="note" style="margin:0">ページを見ている方のブラウザ（端末の日付・タイムゾーン）をもとに判定します。毎日0時を過ぎると自動でその日の内容に切り替わります。</p>
+    <h3>スマートフォンでも表示されますか？</h3>
+    <p class="note" style="margin:0">はい。iframe の幅は max-width:100% を指定しているため、画面幅に合わせて縮小表示されます。</p>
+  </div>
+
+  <footer>ほかの日付ツールは「<a href="index.html">暦・日付ツール集</a>」からどうぞ。縁起日の年間一覧は「<a href="engi-index.html">縁起の良い日 一覧</a>」にあります。</footer>
+</div>
+
+<script>
+function copySnippet(id, btn){
+  var ta = document.getElementById(id);
+  function done(){
+    var orig = "コードをコピー";
+    btn.textContent = "コピーしました";
+    setTimeout(function(){ btn.textContent = orig; }, 1600);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(done).catch(function(){
+      ta.select(); document.execCommand("copy"); done();
+    });
+  } else {
+    ta.select(); document.execCommand("copy"); done();
+  }
+}
+function escAttr(s){
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function updateCd(){
+  var t = (document.getElementById("cdTitle").value || "").trim() || "イベント";
+  var d = document.getElementById("cdDate").value || "2027-01-16";
+  var src = "https://ikesita.github.io/calendar-tools/widget-countdown.html?title=" +
+            encodeURIComponent(t) + "&date=" + encodeURIComponent(d);
+  var snippet = "<!-- カウントダウンウィジェット（暦・日付ツール集） -->\n" +
+    '<iframe src="' + src + '" width="360" height="186" style="border:1px solid #dde1ea;border-radius:12px;max-width:100%" loading="lazy" title="' +
+    escAttr(t) + 'まであと何日"></iframe>\n' +
+    '<div style="font-size:12px;color:#5b6478">カウントダウン提供：<a href="https://ikesita.github.io/calendar-tools/">暦・日付ツール集</a></div>';
+  document.getElementById("cdSnippet").value = snippet;
+  document.getElementById("cdPreview").src =
+    "widget-countdown.html?title=" + encodeURIComponent(t) + "&date=" + encodeURIComponent(d);
+}
+document.getElementById("cdTitle").addEventListener("input", updateCd);
+document.getElementById("cdDate").addEventListener("input", updateCd);
+updateCd();
+</script>
+</body>
+</html>
